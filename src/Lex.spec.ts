@@ -5,5 +5,10 @@ describe('TypeScript WebPack Starter Tests', () => {
     const lex = new Lex();
     //const result = lex.executeParse();
     //expect(result >= 0 && result <= 10).toBeTruthy();
+    const result = lex.executeParse('age >= 45');
+    expect(result === '').toBeTruthy();
   });
 });
+
+
+
