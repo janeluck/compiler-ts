@@ -204,6 +204,3 @@ class Lex {
 }
 
 export default Lex;
-export {
-    Token
-}
