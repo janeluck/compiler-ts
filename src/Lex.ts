@@ -9,7 +9,9 @@ enum State {
     Id_const4,
     Id_const5,
     ConstDigit,
-    Assignment
+    Assignment,
+    Add, // +
+    Mul // *
 };
 
 enum TokenType {
@@ -81,8 +83,10 @@ class Lex {
                     }
                     break;
                 case State.Assignment:
+                case State.Add:
+                case State.Mul:
                     if (this.isBlank(ch)) {
-                        this.token.type = TokenType.Assignment;
+
                         this.state = State.Initial;
                     } else {
                         this.token.text = this.token.text + ch;
@@ -184,6 +188,14 @@ class Lex {
         } else if (ch === '=') {
             this.state = State.Assignment;
             token.type = TokenType.Assignment;
+            token.text = ch;
+        } else if (ch === '+') {
+            this.state = State.Add;
+            token.type = TokenType.Add;
+            token.text = ch;
+        } else if (ch === '*') {
+            this.state = State.Mul;
+            token.type = TokenType.Mul;
             token.text = ch;
         } else {
             this.state = State.Initial; // skip all unknown patterns
