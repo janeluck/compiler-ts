@@ -14,12 +14,14 @@ enum State {
 
 enum TokenType {
     Unknown,
-    Const,
-    ConstDigit,
+    Const, // const
+    ConstDigit,  // number
     Identifier,
-    GE,
-    GT,
-    Assignment,
+    GE,  // >
+    GT, // >=
+    Assignment, // =
+    Add, // +
+    Mul, // *
 
 };
 
