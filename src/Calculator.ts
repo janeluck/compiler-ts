@@ -37,6 +37,7 @@ class Calculator {
 }*/
 
 class SimpleASTNode {
+    parent: SimpleASTNode;
     children: Array<SimpleASTNode>;
     nodeType: ASTNodeType;
     nodeText: string;
@@ -57,10 +58,10 @@ function primary(tokens: Array<Token>) {
     let token = tokens.shift();
     if (token !== null) {
         if (token.type === TokenType.Const) {
-            token = tokens.shift()
+            token = tokens.shift();
             node = new SimpleASTNode(ASTNodeType.ConstDeclaration, token.text)
         } else if (token.type  === TokenType.Identifier) {
-            token = tokens.shift()
+            token = tokens.shift();
             node = new SimpleASTNode(ASTNodeType.Identifier, token.text);
         }
     }
