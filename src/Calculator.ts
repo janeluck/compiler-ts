@@ -1,9 +1,10 @@
-import {TokenType, Token} from './Lex';
+import {Token, TokenType} from './Lex';
 
 enum ASTNodeType {
     ConstDeclaration,
     AdditiveExp,
     multiplicativeExp,
+    Identifier,
 }
 
 class Calculator {
@@ -51,18 +52,38 @@ class SimpleASTNode {
     }
 }
 
-function multiplicative(tokens: Array<Token>) {
-  let node = null;
-  let token = tokens.shift();
-  node = new SimpleASTNode(ASTNodeType.multiplicativeExp, token.text)
-  return node;
+function primary(tokens: Array<Token>) {
+    let node = null;
+    let token = tokens.shift();
+    if (token !== null) {
+        if (token.type === TokenType.Const) {
+            token = tokens.shift()
+            node = new SimpleASTNode(ASTNodeType.ConstDeclaration, token.text)
+        } else if (token.type  === TokenType.Identifier) {
+            token = tokens.shift()
+            node = new SimpleASTNode(ASTNodeType.Identifier, token.text);
+        }
+    }
+
+
+    return node;
+
+
 }
+
+function multiplicative(tokens: Array<Token>) {
+    let node = null;
+    let token = tokens.shift();
+    node = new SimpleASTNode(ASTNodeType.multiplicativeExp, token.text)
+    return node;
+}
+
 function additive(tokens: Array<Token>) {
-  let node = null;
-  let token = tokens.shift();
-  let child1 = multiplicative(tokens)
-  node = new SimpleASTNode(ASTNodeType.AdditiveExp, token.text)
-  return node;
+    let node = null;
+    let token = tokens.shift();
+    let child1 = multiplicative(tokens)
+    node = new SimpleASTNode(ASTNodeType.AdditiveExp, token.text)
+    return node;
 }
 
 function constDeclare(tokens: Array<Token>) {
@@ -94,5 +115,5 @@ function constDeclare(tokens: Array<Token>) {
 
 export default Calculator
 export {
-  constDeclare
+    constDeclare
 }
