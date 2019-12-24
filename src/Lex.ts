@@ -218,3 +218,7 @@ class Lex {
 }
 
 export default Lex;
+export {
+    TokenType,
+    Token
+};
