@@ -22,8 +22,8 @@ enum TokenType {
     GE,  // >
     GT, // >=
     Assignment, // =
-    Add, // +
-    Mul, // *
+    Plus, // +
+    Star, // *
 
 };
 
@@ -191,11 +191,11 @@ class Lex {
             token.text = ch;
         } else if (ch === '+') {
             this.state = State.Add;
-            token.type = TokenType.Add;
+            token.type = TokenType.Plus;
             token.text = ch;
         } else if (ch === '*') {
             this.state = State.Mul;
-            token.type = TokenType.Mul;
+            token.type = TokenType.Star;
             token.text = ch;
         } else {
             this.state = State.Initial; // skip all unknown patterns

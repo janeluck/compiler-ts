@@ -1,13 +1,19 @@
 import {TokenType, Token} from './Lex';
 
+enum ASTNodeType {
+    ConstDeclaration,
+    AdditiveExp,
+    multiplicativeExp,
+}
+
 class Calculator {
-  constructor() {
+    constructor() {
 
-  }
+    }
 
-  executeParse() {
+    executeParse() {
 
-  }
+    }
 }
 
 // const语句的文法 constDeclaration : Const Identifier ( '=' additiveExpression)?;
@@ -30,39 +36,63 @@ class Calculator {
 }*/
 
 class SimpleASTNode {
-  constructor() {
-  }
+    children: Array<SimpleASTNode>;
+    nodeType: ASTNodeType;
+    nodeText: string;
 
-  addChild(node: SimpleASTNode) {
-        return ''
-  }
+    constructor(nodeType: any, nodeText: string) {
+        this.children = [];
+        this.nodeType = nodeType;
+        this.nodeText = nodeText;
+    }
+
+    addChild(node: SimpleASTNode) {
+        this.children.push(node)
+    }
 }
 
-function ConstDeclare(tokens: Array<Token>) {
+function multiplicative(tokens: Array<Token>) {
   let node = null;
-  let token = tokens[0];
-  if (token !== null && token.type === TokenType.Const) {   //匹配Const
-    tokens.shift();      //消耗掉Const
-    if (tokens[0] !== null && tokens[0].type === TokenType.Identifier) { //匹配标识符
-      token = tokens[0];  //消耗掉标识符
-      //创建当前节点，并把变量名记到AST节点的文本值中，
-      //这里新建一个变量子节点也是可以的
-    /*  node = new SimpleASTNode(ASTNodeType.IntDeclaration, token.text);
-      token = tokens.peek();  //预读
-      if (token != null && token.getType() == TokenType.Assignment) {
-        tokens.read();      //消耗掉等号
-        SimpleASTNode
-        child = additive(tokens);  //匹配一个表达式
-        if (child == null) {
-          throw new Exception("invalide variable initialization, expecting an expression");
+  let token = tokens.shift();
+  node = new SimpleASTNode(ASTNodeType.multiplicativeExp, token.text)
+  return node;
+}
+function additive(tokens: Array<Token>) {
+  let node = null;
+  let token = tokens.shift();
+  let child1 = multiplicative(tokens)
+  node = new SimpleASTNode(ASTNodeType.AdditiveExp, token.text)
+  return node;
+}
+
+function constDeclare(tokens: Array<Token>) {
+    let node = null;
+    let token = tokens.shift();
+    if (token !== null && token.type === TokenType.Const) {   //匹配Const
+        token = tokens.shift();
+        if (token !== null && token.type === TokenType.Identifier) { //匹配标识符
+            //创建当前节点，并把变量名记到AST节点的文本值中
+            node = new SimpleASTNode(ASTNodeType.ConstDeclaration, token.text);
+            token = tokens.shift();
+            // 匹配等号
+            if (token != null && token.type === TokenType.Assignment) {
+                // 匹配表达式
+                const child = additive(tokens);
+                if (child == null) {
+                    throw new Error("SyntaxError: Missing initializer in const declaration");
+                } else {
+                    node.addChild(child);
+                }
+            }
         } else {
-          node.addChild(child);
+            // 不允许空语句
+            throw new Error("SyntaxError: const name expected");
         }
-      }*/
-    } else {
-      throw new Exception("variable name expected");
     }
-  }
+    return node;
 }
 
 export default Calculator
+export {
+  constDeclare
+}
