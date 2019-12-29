@@ -1,10 +1,12 @@
 import {Token, TokenType} from './Lex';
-
+import Lex from './Lex';
+const lex = new Lex();
 enum ASTNodeType {
+    Program,
     ConstDeclaration,
     AdditiveExp,
     multiplicativeExp,
-    Identifier,
+    Identifier
 }
 
 class Calculator {
@@ -12,7 +14,10 @@ class Calculator {
 
     }
 
-    executeParse() {
+    executeParse(scripts: string) {
+        const tokens =
+        const node = new SimpleASTNode(ASTNodeType.Program, 'Calculator');
+        const child = additive()
 
     }
 }
@@ -37,7 +42,7 @@ class Calculator {
 }*/
 
 class SimpleASTNode {
-    parent: SimpleASTNode;
+    parent?: SimpleASTNode;
     children: Array<SimpleASTNode>;
     nodeType: ASTNodeType;
     nodeText: string;
@@ -113,7 +118,10 @@ function constDeclare(tokens: Array<Token>) {
     }
     return node;
 }
-
+function dumpAST(node: SimpleASTNode) {
+    console.log('\t' + node.nodeType + " " + node.nodeText);
+    node.children && node.children.forEach(dumpAST);
+}
 export default Calculator
 export {
     constDeclare
