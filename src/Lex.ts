@@ -24,6 +24,8 @@ enum TokenType {
     Assignment, // =
     Plus, // +
     Star, // *
+    LeftParen,
+    RightParen
 
 };
 
@@ -46,7 +48,7 @@ class Lex {
         this.tokens = [];
     }
 
-    executeParse(str: string): string {
+    executeParse(str: string): any {
         // 重设状态
         this.reset();
         // 读入字符串进行解析
@@ -61,7 +63,7 @@ class Lex {
                 case State.Id:
                     if (this.isAlpha(ch) || this.isDigit(ch)) {
                         this.token.text = this.token.text + ch;
-                    } else if (this.isBlank(ch)){
+                    } else if (this.isBlank(ch)) {
                         this.state = State.Initial;
                     }
                     break;
@@ -148,8 +150,7 @@ class Lex {
                     break;
             }
         }
-        // return this.tokens;
-        return this.printTokens(this.tokens);
+        return this.tokens;
     }
 
     isDigit(str: string): Boolean {
@@ -205,20 +206,21 @@ class Lex {
             this.tokens.push(token)
         }
     }
+}
 
-    printTokens(tokens: Array<Token>): string {
+function printTokens(tokens: Array<Token>): string {
 
-        const result = tokens.map(function (item) {
-                return TokenType[item.type] + ':' + item.text;
-            }
-        ).join(';');
-        console.log(result);
-        return result;
-    }
+    const result = tokens.map(function (item) {
+            return TokenType[item.type] + ':' + item.text;
+        }
+    ).join(';');
+    console.log(result);
+    return result;
 }
 
 export default Lex;
 export {
     TokenType,
-    Token
+    Token,
+    printTokens
 };

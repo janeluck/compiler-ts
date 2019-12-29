@@ -53,6 +53,7 @@ class SimpleASTNode {
     }
 }
 
+// 基础表达式
 function primary(tokens: Array<Token>) {
     let node = null;
     let token = tokens.shift();
@@ -63,27 +64,50 @@ function primary(tokens: Array<Token>) {
         } else if (token.type  === TokenType.Identifier) {
             token = tokens.shift();
             node = new SimpleASTNode(ASTNodeType.Identifier, token.text);
+        } else {
+            throw new Error("expecting an additive expression")
         }
     }
-
-
     return node;
-
-
 }
 
 function multiplicative(tokens: Array<Token>) {
-    let node = null;
+    let child1 = primary(tokens);
+    let node = child1;
     let token = tokens.shift();
-    node = new SimpleASTNode(ASTNodeType.multiplicativeExp, token.text)
+    if (child1 != null && token != null) {
+        if (token.type === TokenType.Star) {
+            token = tokens.shift();
+            let child2 = primary(tokens);
+            if (child2 != null) {
+                node = new SimpleASTNode(ASTNodeType.multiplicativeExp, token.text);
+                node.addChild(child1);
+                node.addChild(child2);
+            } else {
+                throw new Error("invalid multiplicative expression, expecting the right part.");
+            }
+        }
+    }
     return node;
 }
 
 function additive(tokens: Array<Token>) {
-    let node = null;
+    let child1 = multiplicative(tokens);
+    let node = child1;
     let token = tokens.shift();
-    let child1 = multiplicative(tokens)
-    node = new SimpleASTNode(ASTNodeType.AdditiveExp, token.text)
+    if (child1 != null && token != null) {
+        if (token.type === TokenType.Plus) {
+            token = tokens.shift();
+            let child2 = multiplicative(tokens);
+            if (child2 != null) {
+                node = new SimpleASTNode(ASTNodeType.AdditiveExp, token.text);
+                node.addChild(child1);
+                node.addChild(child2);
+            } else {
+                throw new Error("invalid multiplicative expression, expecting the right part.");
+            }
+        }
+    }
     return node;
 }
 
@@ -116,5 +140,6 @@ function constDeclare(tokens: Array<Token>) {
 
 export default Calculator
 export {
-    constDeclare
+    constDeclare,
+    primary
 }
