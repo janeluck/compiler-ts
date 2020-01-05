@@ -16,6 +16,7 @@ enum State {
 }
 
 enum TokenType {
+  UnKnown,
   Int,
   Identifier,
   GT, GE,
@@ -28,124 +29,119 @@ enum TokenType {
 
 interface Token {
   type: TokenType,
-  text?: string
+  text?: String
 };
+
+class SimpleToken implements Token {
+  text: String = '';
+  type: TokenType = TokenType.UnKnown;
+
+  getType() {
+    return this.type;
+  }
+
+  getText() {
+    return this.text;
+  }
+}
 
 class Lex {
   state: State;
   tokens: Array<Token>;
   token: Token;
+  tokenText: String;
 
   constructor() {
     console.log('i am a lex');
   }
 
   reset() {
-    this.state = State.Initial;
     this.tokens = [];
+    this.tokenText = '';
+    this.token = new SimpleToken();
   }
 
   executeParse(str: string): any {
     // 重设状态
     this.reset();
+    let state = State.Initial;
     // 读入字符串进行解析
     const strArr = str.split('');
     let ch;
-    while ((ch = strArr.shift()) !== undefined) {
 
-      switch (this.state) {
+    while ((ch = strArr.shift()) !== undefined) {
+      switch (state) {
         case State.Initial:
-          this.initToken(ch);
+          state = this.initToken(ch);
           break;
         case State.Id:
           if (this.isAlpha(ch) || this.isDigit(ch)) {
-            this.token.text = this.token.text + ch;
-          } else if (this.isBlank(ch)) {
-            this.state = State.Initial;
+            this.tokenText = this.tokenText + ch;
+          } else {
+            state = this.initToken(ch);
           }
           break;
-        case State.ConstDigit:
+        case State.IntLiteral:
           if (this.isDigit(ch)) {
-            this.token.text = this.token.text + ch;
+            this.tokenText = this.tokenText + ch;
           } else {
-            // 简化处理，先忽略掉后跟字母或者其他符号的情况
-            this.state = State.Initial;
+            state = this.initToken(ch);
           }
           break;
         case State.GT:
           if (ch === '=') {
-            this.token.text = this.token.text + ch;
+            this.tokenText = this.tokenText + ch;
             this.state = State.GE;
           } else {
-            // 简化处理，先忽略掉后跟字母或者其他符号的情况
-            this.state = State.Initial;
+            state = this.initToken(ch);
           }
           break;
         case State.Assignment:
-        case State.Add:
-        case State.Mul:
-          if (this.isBlank(ch)) {
-
-            this.state = State.Initial;
-          } else {
-            this.token.text = this.token.text + ch;
-            this.state = State.Id;
-          }
+        case State.Plus:
+        case State.Minus:
+        case State.Star:
+        case State.Slash:
+        case State.SemiColon:
+        case State.LeftParen:
+        case State.RightParen:
+          state = this.initToken(ch);
           break;
-        case State.Id_const1:
-          if (ch === 'o') {
-            this.token.text = this.token.text + ch;
-            this.state = State.Id_const2;
-          } else if (!this.isBlank(ch)) {
-            this.token.text = this.token.text + ch;
-            this.state = State.Id;
-          } else {
-            this.state = State.Initial;
-          }
-          break;
-        case State.Id_const2:
+        case State.Id_int1:
           if (ch === 'n') {
-            this.token.text = this.token.text + ch;
-            this.state = State.Id_const3;
-          } else if (!this.isBlank(ch)) {
-            this.token.text = this.token.text + ch;
-            this.state = State.Id;
+            this.tokenText = this.tokenText + ch;
+            this.state = State.Id_int2;
+          } else if (this.isDigit(ch) || this.isAlpha(ch)) {
+            this.tokenText = this.tokenText + ch;
+            state = State.Id;
           } else {
-            this.state = State.Initial;
+            state = this.initToken(ch);
           }
           break;
-        case State.Id_const3:
-          if (ch === 's') {
-            this.token.text = this.token.text + ch;
-            this.state = State.Id_const4;
-          } else if (!this.isBlank(ch)) {
-            this.token.text = this.token.text + ch;
-            this.state = State.Id;
-          } else {
-            this.state = State.Initial;
-          }
-          break;
-        case State.Id_const4:
+        case State.Id_int2:
           if (ch === 't') {
-            this.token.text = this.token.text + ch;
-            this.state = State.Id_const5;
-          } else if (!this.isBlank(ch)) {
-            this.token.text = this.token.text + ch;
-            this.state = State.Id;
+            this.tokenText = this.tokenText + ch;
+            this.state = State.Id_int3;
+          } else if (this.isDigit(ch) || this.isAlpha(ch)) {
+            this.tokenText = this.tokenText + ch;
+            state = State.Id;
           } else {
-            this.state = State.Initial;
+            state = this.initToken(ch);
           }
           break;
-        case State.Id_const5:
+        case State.Id_int3:
           if (this.isBlank(ch)) {
-            this.token.type = TokenType.Const;
-            this.state = State.Initial;
+            this.token.type = TokenType.Int;
+            state = this.initToken(ch);
           } else {
-            this.token.text = this.token.text + ch;
-            this.state = State.Id;
+            state = State.Id;
+            this.tokenText = this.tokenText + ch;
           }
           break;
       }
+    }
+    // 把最后一个token送进去
+    if (this.tokenText.length > 0) {
+      this.initToken(ch);
     }
     return this.tokens;
   }
@@ -163,52 +159,52 @@ class Lex {
   }
 
   // token
-  initToken(ch: string): void {
-    const token: Token = {
-      type: TokenType.Unknown
-    };
+  initToken(ch: string): State {
+    if (this.tokenText.length > 0) {
+      this.token.text = this.tokenText;
+      this.tokens.push(this.token);
+      this.tokenText = '';
+      this.token = new SimpleToken()
+    }
+    let state = State.Initial;
     if (this.isAlpha(ch)) {              //第一个字符是字母
-      if (ch === 'c') {
-        this.state = State.Id_const1;
+      if (ch === 'i') {
+        state = State.Id_int1;
       } else {
-        this.state = State.Id; //进入Id状态
+        state = State.Id; //进入Id状态
       }
-      token.type = TokenType.Identifier;
-      token.text = ch;
+      this.token.type = TokenType.Identifier;
+      this.tokenText = this.tokenText + '' + ch;
     } else if (this.isDigit(ch)) {       //第一个字符是数字
-      this.state = State.ConstDigit;
-      token.type = TokenType.ConstDigit;
-      token.text = ch;
+      state = State.IntLiteral;
+      this.token.type = TokenType.IntLiteral;
+      this.tokenText = this.tokenText + '' + ch;
     } else if (ch === '>') {         //第一个字符是>
-      this.state = State.GT;
-      token.type = TokenType.GT;
-      token.text = ch;
+      state = State.GT;
+      this.token.type = TokenType.GT;
+      this.tokenText = this.tokenText + '' + ch;
     } else if (ch === '=') {
-      this.state = State.Assignment;
-      token.type = TokenType.Assignment;
-      token.text = ch;
+      state = State.Assignment;
+      this.token.type = TokenType.Assignment;
+      this.tokenText = this.tokenText + '' + ch;
     } else if (ch === '+') {
-      this.state = State.Add;
-      token.type = TokenType.Plus;
-      token.text = ch;
+      state = State.Plus;
+      this.token.type = TokenType.Plus;
+      this.tokenText = this.tokenText + '' + ch;
     } else if (ch === '*') {
-      this.state = State.Mul;
-      token.type = TokenType.Star;
-      token.text = ch;
+      state = State.Star;
+      this.token.type = TokenType.Star;
+      this.tokenText = this.tokenText + '' + ch;
     } else {
       this.state = State.Initial; // skip all unknown patterns
     }
-    if (this.state !== State.Initial) {
-      this.token = token;
-      this.tokens.push(token)
-    }
+    return state;
   }
 }
 
-function printTokens(tokens: Array<Token>): string {
-
+function printTokens(tokens: Array<SimpleToken>): string {
   const result = tokens.map(function (item) {
-      return TokenType[item.type] + ':' + item.text;
+      return TokenType[item.getType()] + ':' + item.getText();
     }
   ).join(';');
   console.log(result);

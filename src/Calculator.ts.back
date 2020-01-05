@@ -67,12 +67,12 @@ function primary(tokens: Array<Token>) {
   let node = null;
   let token = tokens.shift();
   if (token !== null) {
-    if (token.type === TokenType.Const) {
+    if (token.type === TokenType.Int) {
       token = tokens.shift();
-      node = new SimpleASTNode(ASTNodeType.ConstDeclaration, token.text)
+      node = new SimpleASTNode(ASTNodeType.ConstDeclaration, token.getText())
     } else if (token.type === TokenType.Identifier) {
       token = tokens.shift();
-      node = new SimpleASTNode(ASTNodeType.Identifier, token.text);
+      node = new SimpleASTNode(ASTNodeType.Identifier, token.getText());
     } else {
       throw new Error("expecting an additive expression")
     }

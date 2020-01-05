@@ -6,7 +6,7 @@ describe('Lex Starter Tests', () => {
         //const result = lex.executeParse();
         //expect(result >= 0 && result <= 10).toBeTruthy();
         const result1 = printTokens(lex.executeParse('2 * 3 + 5'));
-        expect(result1 === 'ConstDigit:2;Star:*;ConstDigit:3;Plus:+;ConstDigit:5').toBeTruthy();
+        expect(result1 === 'IntLiteral:2;Star:*;IntLiteral:3;Plus:+;IntLiteral:5').toBeTruthy();
     });
 });
 
