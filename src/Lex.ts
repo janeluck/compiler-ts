@@ -215,5 +215,6 @@ export default Lex;
 export {
   TokenType,
   Token,
+  SimpleToken,
   printTokens
 };
