@@ -2,6 +2,6 @@ interface ASTNode {
     getParent(): any;
     getChildren(): any;
     getType(): any;
-    getText(): String;
+    getText(): string;
 }
 export default ASTNode

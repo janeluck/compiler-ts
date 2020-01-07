@@ -29,11 +29,11 @@ enum TokenType {
 
 interface Token {
   type: TokenType,
-  text?: String
+  text?: string
 };
 
 class SimpleToken implements Token {
-  text: String = '';
+  text: string = '';
   type: TokenType = TokenType.UnKnown;
 
   getType() {
@@ -49,7 +49,7 @@ class Lex {
   state: State;
   tokens: Array<Token>;
   token: Token;
-  tokenText: String;
+  tokenText: string;
 
   constructor() {
     console.log('i am a lex');
